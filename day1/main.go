@@ -3,28 +3,35 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"log"
 	"os"
 	"strconv"
 	"strings"
 )
 
-func findNumber(line string) string {
-	strSlice := strings.Split(line, "")
-	f := func(r rune) bool {
-		return r == '1' || r == '2' || r == '3' || r == '4' || r == '5' || r == '6' || r == '7' || r == '8' || r == '9'
-	}
+var numberWords = []string{"one", "two", "three", "four", "five", "six", "seven", "eight", "nine"}
 
-	first := ""
-	last := ""
+func replaceWords(line string) string {
+	newLine := line
 
-	for i := 0; i < len(strSlice); i++ {
-		if strings.ContainsFunc(strSlice[i], f) {
-			if first == "" {
-				first = strSlice[i]
-			}
-			last = strSlice[i]
+	for i := 0; i < len(numberWords); i++ {
+		index := strings.Index(newLine, numberWords[i])
+		for index != -1 {
+			//since the strings can be overlapping, replace each word but leave the ends, three = t3e, so things like twone work two = t2o1e
+			newLine = newLine[:index+1] + strconv.Itoa(i+1) + newLine[index+1:]
+			index = strings.Index(newLine, numberWords[i])
 		}
 	}
+
+	return newLine
+
+}
+
+func findNumber(line string) string {
+	chars := "1234567890"
+
+	first := string(line[strings.IndexAny(line, chars)])
+	last := string(line[strings.LastIndexAny(line, chars)])
 
 	return first + last
 }
@@ -37,11 +44,14 @@ func main() {
 	total := 0
 
 	for scanner.Scan() {
-		number := findNumber(scanner.Text())
+		//part 2
+		line := replaceWords(scanner.Text())
+
+		number := findNumber(line)
 
 		numint, err := strconv.Atoi(number)
 		if err != nil {
-			panic(err)
+			log.Fatal(err)
 		}
 
 		total += numint
