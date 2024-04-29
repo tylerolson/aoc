@@ -3,7 +3,6 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"log"
 	"os"
 	"strconv"
 	"unicode"
@@ -26,6 +25,7 @@ func isNumberAtIndex(numbers [][]int, i int, j int) int {
 					numbers[i][scanJ] = 0
 					scanJ++
 				}
+
 				return num
 			}
 		}
@@ -87,13 +87,15 @@ func getNumbers(engine [][]rune) [][]int {
 			if unicode.IsDigit(letter) {
 				currentNumber += string(letter)
 				js = append(js, j)
-			} else {
+			}
+			// IT DOESNT KNOW IF THE NUMBER IS DONE UNTIL NEXT ITERATION IF ITS ON THE END
+			// SO WE NEED TO ALSO CHECK IF ITS ON THE END OR IT GETS PUT IN AT I+1
+			if !unicode.IsDigit(letter) || j == len(engine[i])-1 {
 				if currentNumber != "" {
 					num, _ := strconv.Atoi(currentNumber)
 					for _, _j := range js {
 						numbers[i][_j] = num
 					}
-
 					js = nil
 					currentNumber = ""
 				}
@@ -120,37 +122,12 @@ func main() {
 	}
 
 	numbers := getNumbers(engine)
-	f, err := os.Create("numbers.txt")
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	for _, line := range numbers {
-		for _, number := range line {
-			f.WriteString(fmt.Sprintf("%d ", number))
-		}
-		f.WriteString("\n")
-	}
-
 	validNumbers := checkSymbols(engine, numbers)
 
 	finalNumber := 0
-
 	for _, num := range validNumbers {
 		finalNumber += num
 	}
-	f2, err := os.Create("numbersafter.txt")
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	for _, line := range numbers {
-		for _, number := range line {
-			f2.WriteString(fmt.Sprintf("%d ", number))
-		}
-		f2.WriteString("\n")
-	}
 
 	fmt.Println(finalNumber)
-
 }
