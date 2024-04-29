@@ -34,47 +34,59 @@ func isNumberAtIndex(numbers [][]int, i int, j int) int {
 	return -1
 }
 
-func checkSymbols(engine [][]rune, numbers [][]int) []int {
+func checkSymbols(engine [][]rune, numbers [][]int) ([]int, []int) {
 	var validNumbers []int
+	var gearRatios []int
 	for i, line := range engine {
 		for j, letter := range line {
 			if !unicode.IsDigit(letter) && string(letter) != "." {
+				var numbersAroundSymbol []int
 				if value := isNumberAtIndex(numbers, i-1, j-1); value != -1 {
-					validNumbers = append(validNumbers, value)
+					numbersAroundSymbol = append(numbersAroundSymbol, value)
 				}
 
 				if value := isNumberAtIndex(numbers, i, j-1); value != -1 {
-					validNumbers = append(validNumbers, value)
+					numbersAroundSymbol = append(numbersAroundSymbol, value)
 				}
 
 				if value := isNumberAtIndex(numbers, i+1, j-1); value != -1 {
-					validNumbers = append(validNumbers, value)
+					numbersAroundSymbol = append(numbersAroundSymbol, value)
 				}
 
 				if value := isNumberAtIndex(numbers, i-1, j); value != -1 {
-					validNumbers = append(validNumbers, value)
+					numbersAroundSymbol = append(numbersAroundSymbol, value)
 				}
 
 				if value := isNumberAtIndex(numbers, i+1, j); value != -1 {
-					validNumbers = append(validNumbers, value)
+					numbersAroundSymbol = append(numbersAroundSymbol, value)
 				}
 
 				if value := isNumberAtIndex(numbers, i-1, j+1); value != -1 {
-					validNumbers = append(validNumbers, value)
+					numbersAroundSymbol = append(numbersAroundSymbol, value)
 				}
 
 				if value := isNumberAtIndex(numbers, i, j+1); value != -1 {
-					validNumbers = append(validNumbers, value)
+					numbersAroundSymbol = append(numbersAroundSymbol, value)
 				}
 
 				if value := isNumberAtIndex(numbers, i+1, j+1); value != -1 {
-					validNumbers = append(validNumbers, value)
+					numbersAroundSymbol = append(numbersAroundSymbol, value)
 				}
+
+				if string(letter) == "*" && len(numbersAroundSymbol) == 2 { //gear ratio
+					gearRatio := 1
+					for _, num := range numbersAroundSymbol {
+						gearRatio *= num
+					}
+
+					gearRatios = append(gearRatios, gearRatio)
+				}
+				validNumbers = append(validNumbers, numbersAroundSymbol...)
 			}
 		}
 	}
 
-	return validNumbers
+	return validNumbers, gearRatios
 }
 
 func getNumbers(engine [][]rune) [][]int {
@@ -122,12 +134,18 @@ func main() {
 	}
 
 	numbers := getNumbers(engine)
-	validNumbers := checkSymbols(engine, numbers)
+	validNumbers, gearRatios := checkSymbols(engine, numbers)
 
 	finalNumber := 0
+	finalRatio := 0
 	for _, num := range validNumbers {
 		finalNumber += num
 	}
 
+	for _, num := range gearRatios {
+		finalRatio += num
+	}
+
 	fmt.Println(finalNumber)
+	fmt.Println(finalRatio)
 }
