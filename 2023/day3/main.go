@@ -4,15 +4,25 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"sort"
 	"strconv"
 	"unicode"
 )
 
 func isNumberAtIndex(numbers [][]int, i int, j int) int {
-	if i > 0 && i < len(numbers) {
-		if j > 0 && j < len(numbers[i]) {
+	if i >= 0 && i < len(numbers) {
+		if j >= 0 && j < len(numbers[i]) {
 			if numbers[i][j] != 0 {
-				return numbers[i][j]
+				num := numbers[i][j]
+				numbers[i][j] = 0
+
+				for k, value := range numbers[i] {
+					if value == num {
+						numbers[i][k] = 0
+					}
+				}
+
+				return num
 			}
 		}
 	}
@@ -27,47 +37,34 @@ func checkSymbols(engine [][]rune, numbers [][]int) []int {
 			if !unicode.IsDigit(letter) && string(letter) != "." {
 				if value := isNumberAtIndex(numbers, i-1, j-1); value != -1 {
 					validNumbers = append(validNumbers, value)
-					continue
 				}
 
 				if value := isNumberAtIndex(numbers, i, j-1); value != -1 {
 					validNumbers = append(validNumbers, value)
-					continue
 				}
 
 				if value := isNumberAtIndex(numbers, i+1, j-1); value != -1 {
 					validNumbers = append(validNumbers, value)
-					continue
 				}
 
 				if value := isNumberAtIndex(numbers, i-1, j); value != -1 {
 					validNumbers = append(validNumbers, value)
-					continue
-				}
-
-				if value := isNumberAtIndex(numbers, i, j); value != -1 {
-					validNumbers = append(validNumbers, value)
-					continue
 				}
 
 				if value := isNumberAtIndex(numbers, i+1, j); value != -1 {
 					validNumbers = append(validNumbers, value)
-					continue
 				}
 
 				if value := isNumberAtIndex(numbers, i-1, j+1); value != -1 {
 					validNumbers = append(validNumbers, value)
-					continue
 				}
 
 				if value := isNumberAtIndex(numbers, i, j+1); value != -1 {
 					validNumbers = append(validNumbers, value)
-					continue
 				}
 
 				if value := isNumberAtIndex(numbers, i+1, j+1); value != -1 {
 					validNumbers = append(validNumbers, value)
-					continue
 				}
 			}
 		}
@@ -92,7 +89,6 @@ func getNumbers(engine [][]rune) [][]int {
 				if currentNumber != "" {
 					num, _ := strconv.Atoi(currentNumber)
 					for _, _j := range js {
-						fmt.Println(num)
 						numbers[i][_j] = num
 					}
 
@@ -139,6 +135,8 @@ func main() {
 		}
 		fmt.Println()
 	}
+
+	sort.Ints(validNumbers)
 
 	fmt.Println(validNumbers)
 
