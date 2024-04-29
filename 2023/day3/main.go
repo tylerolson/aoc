@@ -3,8 +3,8 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"log"
 	"os"
-	"sort"
 	"strconv"
 	"unicode"
 )
@@ -14,14 +14,18 @@ func isNumberAtIndex(numbers [][]int, i int, j int) int {
 		if j >= 0 && j < len(numbers[i]) {
 			if numbers[i][j] != 0 {
 				num := numbers[i][j]
-				numbers[i][j] = 0
 
-				for k, value := range numbers[i] {
-					if value == num {
-						numbers[i][k] = 0
-					}
+				scanJ := j
+				for scanJ >= 0 && numbers[i][scanJ] == num {
+					scanJ--
 				}
 
+				scanJ++
+
+				for scanJ < len(numbers[i]) && numbers[i][scanJ] == num {
+					numbers[i][scanJ] = 0
+					scanJ++
+				}
 				return num
 			}
 		}
@@ -75,12 +79,10 @@ func checkSymbols(engine [][]rune, numbers [][]int) []int {
 
 func getNumbers(engine [][]rune) [][]int {
 	numbers := make([][]int, len(engine))
-	for i := range numbers {
-		numbers[i] = make([]int, len(engine[i]))
-	}
 	var currentNumber string
 	var js []int
 	for i, line := range engine {
+		numbers[i] = make([]int, len(engine[i]))
 		for j, letter := range line {
 			if unicode.IsDigit(letter) {
 				currentNumber += string(letter)
@@ -95,7 +97,6 @@ func getNumbers(engine [][]rune) [][]int {
 					js = nil
 					currentNumber = ""
 				}
-
 			}
 		}
 	}
@@ -119,31 +120,35 @@ func main() {
 	}
 
 	numbers := getNumbers(engine)
-
-	validNumbers := checkSymbols(engine, numbers)
-
-	for _, line := range engine {
-		for _, letter := range line {
-			fmt.Printf("%c", letter)
-		}
-		fmt.Println()
+	f, err := os.Create("numbers.txt")
+	if err != nil {
+		log.Fatal(err)
 	}
 
 	for _, line := range numbers {
 		for _, number := range line {
-			fmt.Printf("%d ", number)
+			f.WriteString(fmt.Sprintf("%d ", number))
 		}
-		fmt.Println()
+		f.WriteString("\n")
 	}
 
-	sort.Ints(validNumbers)
-
-	fmt.Println(validNumbers)
+	validNumbers := checkSymbols(engine, numbers)
 
 	finalNumber := 0
 
 	for _, num := range validNumbers {
 		finalNumber += num
+	}
+	f2, err := os.Create("numbersafter.txt")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	for _, line := range numbers {
+		for _, number := range line {
+			f2.WriteString(fmt.Sprintf("%d ", number))
+		}
+		f2.WriteString("\n")
 	}
 
 	fmt.Println(finalNumber)
