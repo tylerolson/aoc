@@ -45,7 +45,7 @@ func findMinimumCube(game string) int {
 	records := strings.Split(game, ";")
 	minRed, minGreen, minBlue := 0, 0, 0
 	for _, record := range records {
-		colors := strings.Split(strings.ReplaceAll(record, " ", ""), ",")
+		colors := strings.Split(strings.TrimSpace(record), ",")
 		for _, color := range colors {
 			if strings.Contains(color, "red") {
 				num, _ := strconv.Atoi(strings.ReplaceAll(color, "red", ""))
